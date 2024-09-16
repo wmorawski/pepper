@@ -3,6 +3,7 @@ module.exports = {
   darkMode: 'selector',
   content: [
     "./src/**/*.{html,ts}",
+    "./node_modules/flowbite/**/*.js"
   ],
   theme: {
     container: {
@@ -10,6 +11,6 @@ module.exports = {
     },
     extend: {},
   },
-  plugins: [],
+  plugins: [require('flowbite/plugin')],
 }
 
