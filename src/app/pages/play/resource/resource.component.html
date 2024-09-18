@@ -8,11 +8,7 @@
 
   <div class='resources-container'>
     @for (resource of resources$ | async; track resource.name) {
-      <mat-card>
-        <mat-card-title>
-          {{ resource.name }}
-        </mat-card-title>
-      </mat-card>
+
     }
   </div>
   @if (winner$ | async; as winner) {
@@ -26,3 +22,21 @@
   }
   <button (click)='fetchResources()' mat-flat-button>Play again</button>
 </div>
+
+<ng-template #peopleTpl let-resource>
+  <div class='list'>
+    <div class='item'>
+      <span class='label'>Birth year</span>
+      <span>{{ resource.birth_year }}</span>
+    </div>
+    <div class='item'>
+      <span class='label'>Eye color</span>
+      <span>{{ resource.eye_color }}</span>
+    </div>
+    <div class='item'>
+      <span class='label'>Height</span>
+      <span>{{ resource.height }}</span>
+    </div>
+  </div>
+</ng-template>
+<ng-template #starshipsTpl let-resource='resource'></ng-template>

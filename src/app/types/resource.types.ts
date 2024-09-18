@@ -46,3 +46,5 @@ export interface Starships {
   created: string;
   edited: string;
 }
+
+export type Resource = People | Starships;

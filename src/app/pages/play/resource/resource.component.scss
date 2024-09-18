@@ -11,10 +11,33 @@
     mat-card {
       flex-grow: 1
     }
+
+    mat-card-title {
+      padding: 0.5rem 0;
+    }
+
+    mat-divider {
+      padding: 0.5rem 0;
+    }
   }
 }
 
 [layout-center] {
   display: flex;
   justify-content: center;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .label {
+      font-weight: bold;
+    }
+  }
 }

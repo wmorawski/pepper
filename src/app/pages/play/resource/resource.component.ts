@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, effect, OnInit, TemplateRef, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { getRandomId, resourceCommonAttributeMap, resourceComparatorFn, resourceMinMaxIdMap } from '../../../utils/resource.utils';
@@ -6,15 +6,17 @@ import { People, ResourceType, Starships } from '../../../types/resource.types';
 import { catchError, combineLatest, EMPTY, map, Subject, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SWAPIResourceResponse } from '../../../types/swapi.http.types';
-import { AsyncPipe } from '@angular/common';
-import { MatCard, MatCardTitle } from '@angular/material/card';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
+import { MatCard, MatCardContent, MatCardTitle } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatList, MatListItem } from '@angular/material/list';
+import { MatDivider } from '@angular/material/divider';
 
 @Component({
-  selector: 'app-resource',
+  selector: 'app-resource-card',
   standalone: true,
-  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner],
+  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner, MatCardContent, NgTemplateOutlet, MatList, MatListItem, MatDivider],
   templateUrl: './resource.component.html',
   styleUrl: './resource.component.scss',
   providers: [],
@@ -27,12 +29,28 @@ export class ResourceComponent implements OnInit {
   public loading = false;
   public hasError = false;
 
+  public peopleTpl = viewChild<TemplateRef<any>>('peopleTpl');
+  public starshipsTpl = viewChild<TemplateRef<any>>('starshipsTpl');
+
+  public resourceTemplateMap: Partial<Record<ResourceType, TemplateRef<any>>> = {};
+  public resourceLabelKeysMap: Partial<Record<ResourceType, string[]>> = {
+    [ResourceType.People]: ['birth_year', 'eye_color', 'gender', 'hair_color', 'height', 'mass'],
+    [ResourceType.Starships]: ['model', 'starship_class', 'manufacturer', 'cost_in_credits', 'hyperdrive_rating', 'crew'],
+  };
+
   constructor(
     private httpClient: HttpClient,
     private route: ActivatedRoute,
     private destroyRef: DestroyRef
   ) {
     this.resourceType = this.route.snapshot.params['resource'];
+
+    effect(() => {
+      this.resourceTemplateMap = {
+        [ResourceType.People]: this.peopleTpl()!,
+        [ResourceType.Starships]: this.starshipsTpl()!,
+      };
+    });
   }
 
   public ngOnInit() {
