@@ -11,12 +11,25 @@ $dark-theme: mat.define-theme(
     )
 );
 
+$light-theme: mat.define-theme(
+    (
+      color: (
+        theme-type: light
+      )
+    )
+);
+
 html,
 body {
   height: 100%;
   background: mat.get-theme-color($dark-theme, surface);
-  color: #fff;
+  color: mat.get-theme-color($light-theme, surface);
   @include mat.all-component-colors($dark-theme);
+}
+
+mat-card {
+  @include mat.card-theme($light-theme);
+  color: mat.get-theme-color($dark-theme, surface)
 }
 
 body {

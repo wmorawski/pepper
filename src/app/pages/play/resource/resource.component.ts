@@ -3,26 +3,29 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { getRandomId, resourceCommonAttributeMap, resourceComparatorFn, resourceMinMaxIdMap } from '../../../utils/resource.utils';
 import { People, ResourceType, Starships } from '../../../types/resource.types';
-import { combineLatest, map, Subject, take } from 'rxjs';
+import { catchError, combineLatest, EMPTY, map, Subject, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SWAPIResourceResponse } from '../../../types/swapi.http.types';
 import { AsyncPipe } from '@angular/common';
 import { MatCard, MatCardTitle } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-resource',
   standalone: true,
-  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink],
+  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner],
   templateUrl: './resource.component.html',
   styleUrl: './resource.component.scss',
   providers: [],
 })
 export class ResourceComponent implements OnInit {
-  public resources$ = new Subject<[People | Starships, People | Starships]>();
-  public winner$ = this.resources$.pipe(map(resources => resourceComparatorFn(...resources)));
+  public resources$ = new Subject<[People | Starships, People | Starships] | null>();
+  public winner$ = this.resources$.pipe(map(resources => (Array.isArray(resources) ? resourceComparatorFn(...resources) : null)));
   public resourceType: ResourceType;
   public resourceCommonAttribute = '';
+  public loading = false;
+  public hasError = false;
 
   constructor(
     private httpClient: HttpClient,
@@ -38,11 +41,23 @@ export class ResourceComponent implements OnInit {
   }
 
   public fetchResources() {
+    this.resources$.next(null);
+    this.loading = true;
     const id1 = getRandomId(...resourceMinMaxIdMap[this.resourceType]!);
     const id2 = getRandomId(...resourceMinMaxIdMap[this.resourceType]!);
     combineLatest([this.fetchResource(this.resourceType, id1), this.fetchResource(this.resourceType, id2)])
-      .pipe(takeUntilDestroyed(this.destroyRef), take(1))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        take(1),
+        catchError(() => {
+          this.loading = false;
+          this.hasError = true;
+          return EMPTY;
+        })
+      )
       .subscribe(([resource1, resource2]) => {
+        this.loading = false;
+        this.hasError = false;
         this.resources$.next([resource1.result.properties, resource2.result.properties]);
         console.log({
           resource1,

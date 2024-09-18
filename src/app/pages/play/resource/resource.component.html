@@ -1,8 +1,14 @@
 <div class='container'>
   <button mat-stroked-button routerLink='/play'>Go back</button>
+  @if (loading) {
+    <div layout-center>
+      <mat-spinner />
+    </div>
+  }
+
   <div class='resources-container'>
     @for (resource of resources$ | async; track resource.name) {
-      <mat-card [style.background-color]='$any(resource).skin_color'>
+      <mat-card>
         <mat-card-title>
           {{ resource.name }}
         </mat-card-title>
@@ -14,6 +20,9 @@
       And the winner is {{ winner.name }} with {{ $any(winner)[resourceCommonAttribute] }}
       {{ resourceCommonAttribute }}
     </div>
+  }
+  @if (hasError) {
+    An error has occurred, please play again
   }
   <button (click)='fetchResources()' mat-flat-button>Play again</button>
 </div>
