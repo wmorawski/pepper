@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .resources-container {
+    display: flex;
+    flex-direction: row;
+
+    mat-card {
+      flex-grow: 1
+    }
+  }
+}

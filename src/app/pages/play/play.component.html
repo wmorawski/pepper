@@ -1,1 +1,12 @@
-<p>play works!</p>
+<div class='container'>
+
+  <h2>
+    Choose resource
+  </h2>
+  <div class='resources'>
+    @for (resource of allowedResources; track resource) {
+      <button mat-stroked-button [routerLink]='resource'>{{ resource }}</button>
+    }
+  </div>
+</div>
+
