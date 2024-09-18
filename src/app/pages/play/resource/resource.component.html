@@ -8,16 +8,11 @@
 
   <div class='resources-container'>
     @for (resource of resources$ | async; track resource.name) {
-
+        <app-resource-card [resource]="resource" [properties]="resourceLabelKeysMap[resourceType]!"/>
     }
   </div>
-  @if (winner$ | async; as winner) {
-    <div>
-      And the winner is {{ winner.name }} with {{ $any(winner)[resourceCommonAttribute] }}
-      {{ resourceCommonAttribute }}
-    </div>
-  }
-  @if (hasError) {
+
+    @if (hasError) {
     An error has occurred, please play again
   }
   <button (click)='fetchResources()' mat-flat-button>Play again</button>

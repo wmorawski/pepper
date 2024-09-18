@@ -6,10 +6,9 @@
     <mat-divider />
     <div class='list'>
       @for (property of properties(); track property) {
-
         <div class='item'>
           <span class='label'>{{ property | keyToLabel }}</span>
-          <span>{{ resource }}</span>
+          <span>{{ $any(resource())[property] }}</span>
         </div>
       }
     </div>

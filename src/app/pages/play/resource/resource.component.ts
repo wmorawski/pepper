@@ -1,22 +1,30 @@
-import { Component, DestroyRef, effect, OnInit, TemplateRef, viewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { getRandomId, resourceCommonAttributeMap, resourceComparatorFn, resourceMinMaxIdMap } from '../../../utils/resource.utils';
-import { People, ResourceType, Starships } from '../../../types/resource.types';
-import { catchError, combineLatest, EMPTY, map, Subject, take } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SWAPIResourceResponse } from '../../../types/swapi.http.types';
-import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
-import { MatCard, MatCardContent, MatCardTitle } from '@angular/material/card';
-import { MatButton } from '@angular/material/button';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatList, MatListItem } from '@angular/material/list';
-import { MatDivider } from '@angular/material/divider';
+import {Component, DestroyRef, effect, OnInit, TemplateRef, viewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {
+  getRandomId,
+  resourceCommonAttributeMap,
+  resourceComparatorFn,
+  resourceMinMaxIdMap
+} from '../../../utils/resource.utils';
+import {People, ResourceType, Starships} from '../../../types/resource.types';
+import {catchError, combineLatest, delay, EMPTY, filter, map, Subject, take} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {SWAPIResourceResponse} from '../../../types/swapi.http.types';
+import {AsyncPipe, NgTemplateOutlet} from '@angular/common';
+import {MatCard, MatCardContent, MatCardTitle} from '@angular/material/card';
+import {MatButton} from '@angular/material/button';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatList, MatListItem} from '@angular/material/list';
+import {MatDivider} from '@angular/material/divider';
+import {ResourceCardComponent} from "../../../components/resource-card/resource-card.component";
+import {MatDialog} from "@angular/material/dialog";
+import {WinnerDialogComponent} from "../../../dialogs/winner-dialog/winner-dialog.component";
 
 @Component({
-  selector: 'app-resource-card',
+  selector: 'app-resource',
   standalone: true,
-  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner, MatCardContent, NgTemplateOutlet, MatList, MatListItem, MatDivider],
+  imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner, MatCardContent, NgTemplateOutlet, MatList, MatListItem, MatDivider, ResourceCardComponent],
   templateUrl: './resource.component.html',
   styleUrl: './resource.component.scss',
   providers: [],
@@ -41,7 +49,8 @@ export class ResourceComponent implements OnInit {
   constructor(
     private httpClient: HttpClient,
     private route: ActivatedRoute,
-    private destroyRef: DestroyRef
+    private destroyRef: DestroyRef,
+    private dialog: MatDialog
   ) {
     this.resourceType = this.route.snapshot.params['resource'];
 
@@ -56,6 +65,14 @@ export class ResourceComponent implements OnInit {
   public ngOnInit() {
     this.resourceCommonAttribute = resourceCommonAttributeMap[this.resourceType]!;
     this.fetchResources();
+    this.winner$.pipe(filter(resource => !!resource), delay(1000), takeUntilDestroyed(this.destroyRef)).subscribe((resource) => {
+      this.dialog.open(WinnerDialogComponent, {
+        data: {
+          resource,
+          properties: this.resourceLabelKeysMap[this.resourceType]
+        }
+      });
+    })
   }
 
   public fetchResources() {

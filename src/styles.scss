@@ -28,8 +28,7 @@ body {
 }
 
 mat-card {
-  @include mat.card-theme($light-theme);
-  color: mat.get-theme-color($dark-theme, surface)
+  @include mat.card-theme($dark-theme);
 }
 
 body {
