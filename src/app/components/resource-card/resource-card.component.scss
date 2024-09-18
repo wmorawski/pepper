@@ -1,6 +1,6 @@
 :host {
   display: flex;
-  flex-grow: 1;
+  flex: 1;
 }
 
 mat-card {
@@ -23,7 +23,7 @@ mat-divider {
   .item {
     display: flex;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.8rem;
     text-align: right;
 
     .label {
