@@ -30,7 +30,7 @@ import {IncrementScoreAction} from "../../../scoreboard/scoreboard.actions";
 export class ResourceComponent implements OnInit {
   public resources$ = new Subject<[People | Starships, People | Starships] | null>();
   public winner$ = this.resources$.pipe(map(resources => (Array.isArray(resources) ? this.resourceCreator.comparatorFn(...resources) : null)));
-  public resourceType: ResourceType;
+  public resourceType: ResourceType = this.resourceCreator.getResourceType();
   public resourceCommonAttribute = '';
   public loading = false;
   public hasError = false;
@@ -43,7 +43,6 @@ export class ResourceComponent implements OnInit {
     private resourceCreator: ResourceCreator,
     private store: Store
   ) {
-    this.resourceType = this.resourceCreator.getResourceType();
   }
 
   public ngOnInit() {
