@@ -2,7 +2,7 @@ import {Component, DestroyRef, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {People, ResourceType, Starships} from '../../../types/resource.types';
-import {catchError, combineLatest, delay, EMPTY, filter, map, Subject, take} from 'rxjs';
+import {catchError, combineLatest, delay, EMPTY, filter, map, Subject, take, withLatestFrom} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {SWAPIResourceResponse} from '../../../types/swapi.http.types';
 import {AsyncPipe, NgTemplateOutlet} from '@angular/common';
@@ -16,6 +16,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {WinnerDialogComponent} from "../../../dialogs/winner-dialog/winner-dialog.component";
 import {resourceFactory} from "../../../factories/resource/resource.factory";
 import {ResourceCreator} from "../../../factories/resource/resource.creator";
+import {Store} from "@ngxs/store";
+import {IncrementScoreAction} from "../../../scoreboard/scoreboard.actions";
 
 @Component({
   selector: 'app-resource',
@@ -39,6 +41,7 @@ export class ResourceComponent implements OnInit {
     private destroyRef: DestroyRef,
     private dialog: MatDialog,
     private resourceCreator: ResourceCreator,
+    private store: Store
   ) {
     this.resourceType = this.resourceCreator.getResourceType();
   }
@@ -47,10 +50,12 @@ export class ResourceComponent implements OnInit {
     this.resourceCommonAttribute = this.resourceCreator.getCommonAttribute();
     this.resourceProperties = this.resourceCreator.getProperties();
     this.fetchResources();
-    this.winner$.pipe(filter(resource => !!resource), delay(1000), takeUntilDestroyed(this.destroyRef)).subscribe((resource) => {
+    this.winner$.pipe(filter(resource => !!resource), withLatestFrom(this.resources$), delay(1000), takeUntilDestroyed(this.destroyRef)).subscribe(([winningResource, resources]) => {
+      const winningPlayer = resources!.findIndex(resource => resource === winningResource) === 0 ? 'player1' : 'player2';
+      this.store.dispatch(new IncrementScoreAction(winningPlayer));
       this.dialog.open(WinnerDialogComponent, {
         data: {
-          resource,
+          resource: winningResource,
           properties: this.resourceProperties,
         }
       });

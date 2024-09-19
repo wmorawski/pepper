@@ -1,4 +1,19 @@
 <div>
   <h1>Code&Pepper SWAPI</h1>
+  <div class="scoreboard">
+    <h2>Scoreboard</h2>
+    <mat-divider/>
+    <div class="players">
+      <div class="player">
+        <h4>Player 1</h4>
+        <h5>{{ scores().player1 }}</h5>
+      </div>
+      <mat-divider vertical/>
+      <div class="player">
+        <h4>Player 2</h4>
+        <h5>{{ scores().player2 }}</h5>
+      </div>
+    </div>
+  </div>
   <router-outlet />
 </div>

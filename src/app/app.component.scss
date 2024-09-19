@@ -7,3 +7,16 @@
   text-align: center;
   padding: 2rem;
 }
+
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+
+  .players {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 1rem 0;
+  }
+}

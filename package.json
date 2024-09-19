@@ -21,6 +21,8 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
+    "@ngxs/hmr-plugin": "18.1.1",
+    "@ngxs/store": "^18.1.1",
     "canvas-confetti": "^1.9.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
