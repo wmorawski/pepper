@@ -1,12 +1,16 @@
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import {SWAPIService} from './swapi.service';
+import { SWAPIService } from './swapi.service';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('SWAPIService', () => {
   let service: SWAPIService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [SWAPIService, provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(SWAPIService);
   });
 
