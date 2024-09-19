@@ -29,7 +29,7 @@ export abstract class ResourceCreator implements IResource {
   public comparatorFn(a: Resource, b: Resource): Resource {
     const aCommonAttribute = this.commonAttributeMapFn(a);
     const bCommonAttribute = this.commonAttributeMapFn(b);
-    console.log('comparing', aCommonAttribute, 'to', bCommonAttribute);
+
     return aCommonAttribute > bCommonAttribute ? a : b;
   }
 

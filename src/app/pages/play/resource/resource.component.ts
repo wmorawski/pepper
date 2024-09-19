@@ -80,11 +80,6 @@ export class ResourceComponent implements OnInit {
         this.loading = false;
         this.hasError = false;
         this.resources$.next([resource1.result.properties, resource2.result.properties]);
-        console.log({
-          resource1,
-          resource2,
-          winner: this.resourceCreator.comparatorFn(resource1.result.properties, resource2.result.properties),
-        });
       });
   }
 
