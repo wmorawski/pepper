@@ -1,12 +1,6 @@
-import {Component, DestroyRef, effect, OnInit, TemplateRef, viewChild} from '@angular/core';
+import {Component, DestroyRef, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {
-  getRandomId,
-  resourceCommonAttributeMap,
-  resourceComparatorFn,
-  resourceMinMaxIdMap
-} from '../../../utils/resource.utils';
 import {People, ResourceType, Starships} from '../../../types/resource.types';
 import {catchError, combineLatest, delay, EMPTY, filter, map, Subject, take} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -20,6 +14,8 @@ import {MatDivider} from '@angular/material/divider';
 import {ResourceCardComponent} from "../../../components/resource-card/resource-card.component";
 import {MatDialog} from "@angular/material/dialog";
 import {WinnerDialogComponent} from "../../../dialogs/winner-dialog/winner-dialog.component";
+import {resourceFactory} from "../../../factories/resource/resource.factory";
+import {ResourceCreator} from "../../../factories/resource/resource.creator";
 
 @Component({
   selector: 'app-resource',
@@ -27,49 +23,35 @@ import {WinnerDialogComponent} from "../../../dialogs/winner-dialog/winner-dialo
   imports: [AsyncPipe, MatCard, MatCardTitle, MatButton, RouterLink, MatProgressSpinner, MatCardContent, NgTemplateOutlet, MatList, MatListItem, MatDivider, ResourceCardComponent],
   templateUrl: './resource.component.html',
   styleUrl: './resource.component.scss',
-  providers: [],
+  providers: [{provide: ResourceCreator, useFactory: resourceFactory, deps: [ActivatedRoute]}]
 })
 export class ResourceComponent implements OnInit {
   public resources$ = new Subject<[People | Starships, People | Starships] | null>();
-  public winner$ = this.resources$.pipe(map(resources => (Array.isArray(resources) ? resourceComparatorFn(...resources) : null)));
+  public winner$ = this.resources$.pipe(map(resources => (Array.isArray(resources) ? this.resourceCreator.comparatorFn(...resources) : null)));
   public resourceType: ResourceType;
   public resourceCommonAttribute = '';
   public loading = false;
   public hasError = false;
-
-  public peopleTpl = viewChild<TemplateRef<any>>('peopleTpl');
-  public starshipsTpl = viewChild<TemplateRef<any>>('starshipsTpl');
-
-  public resourceTemplateMap: Partial<Record<ResourceType, TemplateRef<any>>> = {};
-  public resourceLabelKeysMap: Partial<Record<ResourceType, string[]>> = {
-    [ResourceType.People]: ['birth_year', 'eye_color', 'gender', 'hair_color', 'height', 'mass'],
-    [ResourceType.Starships]: ['model', 'starship_class', 'manufacturer', 'cost_in_credits', 'hyperdrive_rating', 'crew'],
-  };
+  public resourceProperties: string[] = [];
 
   constructor(
     private httpClient: HttpClient,
-    private route: ActivatedRoute,
     private destroyRef: DestroyRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private resourceCreator: ResourceCreator,
   ) {
-    this.resourceType = this.route.snapshot.params['resource'];
-
-    effect(() => {
-      this.resourceTemplateMap = {
-        [ResourceType.People]: this.peopleTpl()!,
-        [ResourceType.Starships]: this.starshipsTpl()!,
-      };
-    });
+    this.resourceType = this.resourceCreator.getResourceType();
   }
 
   public ngOnInit() {
-    this.resourceCommonAttribute = resourceCommonAttributeMap[this.resourceType]!;
+    this.resourceCommonAttribute = this.resourceCreator.getCommonAttribute();
+    this.resourceProperties = this.resourceCreator.getProperties();
     this.fetchResources();
     this.winner$.pipe(filter(resource => !!resource), delay(1000), takeUntilDestroyed(this.destroyRef)).subscribe((resource) => {
       this.dialog.open(WinnerDialogComponent, {
         data: {
           resource,
-          properties: this.resourceLabelKeysMap[this.resourceType]
+          properties: this.resourceProperties,
         }
       });
     })
@@ -78,8 +60,7 @@ export class ResourceComponent implements OnInit {
   public fetchResources() {
     this.resources$.next(null);
     this.loading = true;
-    const id1 = getRandomId(...resourceMinMaxIdMap[this.resourceType]!);
-    const id2 = getRandomId(...resourceMinMaxIdMap[this.resourceType]!);
+    const [id1, id2] = this.resourceCreator.getRandomIds();
     combineLatest([this.fetchResource(this.resourceType, id1), this.fetchResource(this.resourceType, id2)])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -97,7 +78,7 @@ export class ResourceComponent implements OnInit {
         console.log({
           resource1,
           resource2,
-          winner: resourceComparatorFn(resource1.result.properties, resource2.result.properties),
+          winner: this.resourceCreator.comparatorFn(resource1.result.properties, resource2.result.properties),
         });
       });
   }

@@ -48,3 +48,21 @@ export interface Starships {
 }
 
 export type Resource = People | Starships;
+
+export interface IResource {
+  getResourceType(): ResourceType;
+
+  getProperties(): string[];
+
+  getCommonAttribute(): string;
+
+  getMinMaxId(): [number, number];
+
+  getPossibleIds(): number[];
+
+  comparatorFn(a: Resource, b: Resource): Resource;
+
+  commonAttributeMapFn(resource: Resource): number;
+
+  getRandomIds(): [number, number]
+}

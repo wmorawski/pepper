@@ -8,7 +8,7 @@
 
   <div class='resources-container'>
     @for (resource of resources$ | async; track resource.name) {
-        <app-resource-card [resource]="resource" [properties]="resourceLabelKeysMap[resourceType]!"/>
+      <app-resource-card [resource]="resource" [properties]="resourceProperties"/>
     }
   </div>
 
