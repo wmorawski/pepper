@@ -1,10 +1,8 @@
 import {Component, DestroyRef, OnInit} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {People, ResourceType, Starships} from '../../../types/resource.types';
 import {catchError, combineLatest, delay, EMPTY, filter, map, Subject, take, withLatestFrom} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {SWAPIResourceResponse} from '../../../types/swapi.http.types';
 import {AsyncPipe, NgTemplateOutlet} from '@angular/common';
 import {MatCard, MatCardContent, MatCardTitle} from '@angular/material/card';
 import {MatButton} from '@angular/material/button';
@@ -18,6 +16,7 @@ import {resourceFactory} from "../../../factories/resource/resource.factory";
 import {ResourceCreator} from "../../../factories/resource/resource.creator";
 import {Store} from "@ngxs/store";
 import {IncrementScoreAction} from "../../../scoreboard/scoreboard.actions";
+import {SWAPIService} from "../../../services/swapi.service";
 
 @Component({
   selector: 'app-resource',
@@ -37,7 +36,7 @@ export class ResourceComponent implements OnInit {
   public resourceProperties: string[] = [];
 
   constructor(
-    private httpClient: HttpClient,
+    private SWAPIService: SWAPIService,
     private destroyRef: DestroyRef,
     private dialog: MatDialog,
     private resourceCreator: ResourceCreator,
@@ -65,7 +64,7 @@ export class ResourceComponent implements OnInit {
     this.resources$.next(null);
     this.loading = true;
     const [id1, id2] = this.resourceCreator.getRandomIds();
-    combineLatest([this.fetchResource(this.resourceType, id1), this.fetchResource(this.resourceType, id2)])
+    combineLatest([this.SWAPIService.fetchResource(this.resourceType, id1), this.SWAPIService.fetchResource(this.resourceType, id2)])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         take(1),
@@ -82,7 +81,5 @@ export class ResourceComponent implements OnInit {
       });
   }
 
-  private fetchResource(resource: ResourceType, id: number) {
-    return this.httpClient.get<SWAPIResourceResponse<People | Starships>>(`https://www.swapi.tech/api/${resource}/${id}`);
-  }
+
 }

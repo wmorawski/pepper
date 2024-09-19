@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {provideStore, Store} from '@ngxs/store';
 import {ScoreboardState, ScoreboardStateModel} from './scoreboard.state';
-import {ScoreboardAction} from './scoreboard.actions';
+import {IncrementScoreAction} from './scoreboard.actions';
 
 describe('Scoreboard store', () => {
   let store: Store;
@@ -16,9 +16,12 @@ describe('Scoreboard store', () => {
 
   it('should create an action and add an item', () => {
     const expected: ScoreboardStateModel = {
-      items: ['item-1']
+      scores: {
+        player1: 1,
+        player2: 0
+      }
     };
-    store.dispatch(new ScoreboardAction('item-1'));
+    store.dispatch(new IncrementScoreAction('player1'));
     const actual = store.selectSnapshot(ScoreboardState.getState);
     expect(actual).toEqual(expected);
   });
