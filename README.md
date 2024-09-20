@@ -4,7 +4,7 @@ Code&Pepper recruitment
 
 ## Live preview
 
-Live preview is available on **https://pepper.morwiko.dev**
+Live preview is available at **https://pepper.morwiko.dev**
 
 ## Development server
 
