@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { People, ResourceType, Starships } from '../../../types/resource.types';
+import { Resource, ResourceType } from '../../../types/resource.types';
 import { catchError, combineLatest, delay, EMPTY, filter, map, Subject, take, withLatestFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
@@ -40,7 +40,7 @@ import { SWAPIService } from '../../../services/swapi.service';
   providers: [{ provide: ResourceCreator, useFactory: resourceFactory, deps: [ActivatedRoute] }],
 })
 export class ResourceComponent implements OnInit {
-  public resources$ = new Subject<[People | Starships, People | Starships] | null>();
+  public resources$ = new Subject<[Resource, Resource] | null>();
   public winner$ = this.resources$.pipe(map(resources => (Array.isArray(resources) ? this.resourceCreator.comparatorFn(...resources) : null)));
   public resourceType: ResourceType = this.resourceCreator.getResourceType();
   public resourceCommonAttribute = '';
